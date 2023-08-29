@@ -7,8 +7,8 @@ const mysql = require("mysql");
 const database = mysql.createConnection({
   host: "localhost",
   user: "root",
-  password: "<PASSWORD>",
-  database: "<DATABASE_NAME>"
+  password: "1234",
+  database: "digita683_oficina"
 });
 
 // Conectar a la base de datos
@@ -25,13 +25,15 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // Ruta POST para recibir datos JSON y guardarlos en la base de datos
-app.post("/api/data", (req, res) => {
+app.post("/service", (req, res) => {
   const data = req.body;
 
+  var entidad = "duoc"
+
   // Ejemplo de Inserción de datos en la tabla 'mi_tabla'
-  const query = "INSERT INTO mi_tabla (clave1, clave2) VALUES (?, ?)";
+  const query = "INSERT INTO Jugador (avatar, clave, entidad) VALUES (?, ?, ?)";
  
-  database.query(query, [data.clave1, data.clave2], (err, result) => {
+  database.query(query, [data.clave, data.avatar, entidad], (err, result) => {
     if (err) {
       res.status(500).send("Error al guardar datos en la base de datos.");
       throw err;
