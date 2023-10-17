@@ -15,11 +15,6 @@ const database = mysql.createConnection({
   //database: "digita683_oficina"
 });
 
-// Conectar a la base de datos
-database.connect((err) => {
-  if (err) throw err;
-  console.log("Conexión a la base de datos exitosa.");
-});
 
 
 
@@ -48,12 +43,21 @@ app.post("/service/1", (req, res) => {
 
 // Ruta POST para recibir datos JSON y guardarlos en la base de datos
 app.post("/service/2", (req, res) => {
+
+  // Conectar a la base de datos
+database.connect((err) => {
+  if (err) throw err;
+  console.log("Conexión a la base de datos exitosa.");
+});
+
   const data = req.body;
   const campo_json = [data.clave];
+
+  console.log(typeof data);
   // Uso de la función
   const query1 = "SELECT * FROM Jugador WHERE clave= ?";
 
-  const query2 = "select * from Jugador left join Rooms on ? = Rooms.entidad where Jugador.clave = ?;";
+  const query2 = "SELECT * FROM Jugador LEFT JOIN Rooms ON Rooms.entidad = ? WHERE Jugador.clave = ?";
    
    
    // Primera consulta
@@ -66,19 +70,20 @@ app.post("/service/2", (req, res) => {
 
      const json_string = JSON.stringify(results1[0]);
      const diccionario = JSON.parse(json_string);
-     console.log(typeof diccionario);
      const entidad = diccionario.entidad;
      console.log(typeof entidad);
-
+     console.log(entidad);
   
+
+
      // Segunda consulta
-     database.query(query2, entidad, [data.clave], (error2, results2) => {
+     database.query(query2,[ entidad , data.clave], (error2, results2) => {
        if (error2) {
          console.error(error2);
          //res.status(500).json({ error1 : "no tiene salas asociadas"});
          return;
        }
-   
+       console.log("holamindo");
        // Unir resultados y transformar a JSON
        const mergedResults = {
          tabla1: results1,
@@ -87,7 +92,8 @@ app.post("/service/2", (req, res) => {
    
        const jsonData = JSON.stringify(mergedResults);
        console.log(jsonData);
-       //res.status(200).json(JSON.stringify(jsonData));
+       console.log(typeof jsonData)
+       res.status(200).json(jsonData);
 
      });
    });
