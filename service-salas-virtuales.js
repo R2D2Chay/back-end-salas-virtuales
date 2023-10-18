@@ -15,11 +15,14 @@ const database = mysql.createConnection({
   //database: "digita683_oficina"
 });
 
-
-
-
 // Crear una instancia de Express
 const app = express();
+
+// Conectar a la base de datos
+database.connect((err) => {
+  if (err) throw err;
+  console.log("Conexión a la base de datos exitosa.");
+});
 
 // Configurar el análisis de objetos JSON en el cuerpo de las solicitudes
 app.use(bodyParser.json());
@@ -43,12 +46,6 @@ app.post("/service/1", (req, res) => {
 
 // Ruta POST para recibir datos JSON y guardarlos en la base de datos
 app.post("/service/2", (req, res) => {
-
-  // Conectar a la base de datos
-database.connect((err) => {
-  if (err) throw err;
-  console.log("Conexión a la base de datos exitosa.");
-});
 
   const data = req.body;
   const campo_json = [data.clave];
@@ -96,13 +93,52 @@ database.connect((err) => {
        res.status(200).json(jsonData);
 
      });
-   });
-
-
-   
+   });   
 });
 
-// Defining get request at '/multiple' route
+// Ruta POST para recibir datos JSON y guardarlos en la base de datos
+app.post("/service/3", (req, res) => {
+  const data = req.body;
+  console.log(data);
+  
+    // Ejemplo de Inserción de datos en la tabla 'mi_tabla'
+  const query = "INSERT INTO Bitacora (clave, entidad, evento, obs) VALUES (?, ?, ?, ?)";
+  const query2= "UPDATE Rooms SET capacidad = capacidad+1 WHERE id = ?"; 
+  const query3= "UPDATE Rooms SET capacidad = capacidad-1 WHERE id = ?";
+
+  if (data.evento==1){ 
+    database.query(query2, [data.id], (err, result) => {
+      console.log(query2);
+      if (err) {
+        res.status(500).json({ error : "al updatear datos en la base de datos."});
+        throw err;
+      }
+      ///res.status(200).json({ ok : "Datos updateados exitosamente!"});
+    });
+    }else{
+      database.query(query3, [data.id], (err, result) => {
+        console.log(query2);
+        if (err) {
+          res.status(500).json({ error : "al updatear datos en la base de datos."});
+          throw err;
+        }
+        //res.status(200).json({ ok : "Datos updateados exitosamente!"});
+      });
+    }
+ 
+  database.query(query, [data.clave, data.entidad, data.evento, data.obs], (err, result) => {
+    console.log(query);
+    if (err) {
+      res.status(500).json({ error : "al guardar datos en la base de datos."});
+      throw err;
+    }
+    res.status(200).json({ ok : "Datos guardados exitosamente!"});
+  });
+
+});
+
+
+// Para prueba de humo 
 app.get('/service', function(req, res) {
   res.json({
     estado: ok,
